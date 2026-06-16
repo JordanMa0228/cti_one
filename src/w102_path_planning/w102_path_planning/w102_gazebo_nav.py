@@ -87,8 +87,8 @@ class W102GazeboNav(Node):
     N_ANG = 11   # samples from -MAX_ANG to +MAX_ANG
 
     # ── Speed limits ──────────────────────────────────────────────────────────
-    MAX_LIN = 0.12   # m/s   forward speed cap
-    MAX_ANG = 1.2    # rad/s angular speed cap
+    MAX_LIN = 0.40   # m/s   forward speed cap
+    MAX_ANG = 1.5    # rad/s angular speed cap
 
     # ── Cost weights (tune here to change controller personality) ─────────────
     W_HEADING  = 2.0  # heading alignment — strongly penalise facing away from goal
@@ -101,17 +101,17 @@ class W102GazeboNav(Node):
     SIM_DT    = 0.05  # seconds per step (matches timer period → 0.5 s lookahead)
 
     # ── Arrival tolerance ─────────────────────────────────────────────────────
-    ARRIVE_DIST = 0.12   # m — declare waypoint reached when closer than this
+    ARRIVE_DIST = 0.25   # m — declare waypoint reached when closer than this
 
     # ── Stuck detection ───────────────────────────────────────────────────────
-    STUCK_DIST    = 0.04   # m   — minimum progress to reset the stuck clock
-    STUCK_TIMEOUT = 3.0    # s   — seconds without progress before recovery
+    STUCK_DIST    = 0.05   # m   — minimum progress to reset the stuck clock
+    STUCK_TIMEOUT = 5.0    # s   — seconds without progress before recovery
 
     # ── Recovery parameters ───────────────────────────────────────────────────
-    RECOVERY_REVERSE_SPD  = 0.08   # m/s   reverse speed (published as negative linear.x)
-    RECOVERY_REVERSE_TIME = 1.2    # s     duration of reverse phase
-    RECOVERY_TURN_SPD     = 0.8    # rad/s rotation speed during disengage phase
-    RECOVERY_TURN_TIME    = 1.8    # s     duration of rotation phase
+    RECOVERY_REVERSE_SPD  = 0.15   # m/s   reverse speed (published as negative linear.x)
+    RECOVERY_REVERSE_TIME = 1.0    # s     duration of reverse phase
+    RECOVERY_TURN_SPD     = 1.0    # rad/s rotation speed during disengage phase
+    RECOVERY_TURN_TIME    = 1.5    # s     duration of rotation phase
 
     # ── Wall danger zone ──────────────────────────────────────────────────────
     WALL_DANGER = 0.30   # m — activate soft wall penalty inside this clearance
