@@ -464,10 +464,15 @@
       </joint>
 
       <!-- Differential drive plugin -->
+      <!-- left/right swapped: with wheel axis along body-X, positive wheel rotation
+           pushes contact in body +Y → robot moves in body -Y (east at spawn yaw=π/2).
+           Physically, right_wheel_joint (body +X side) spinning faster causes CW turn,
+           but ROS convention requires CCW for positive angular.z.  Swapping the joint
+           assignments corrects the angular.z sign so the DWA simulation matches physics. -->
       <plugin filename="gz-sim-diff-drive-system"
               name="gz::sim::systems::DiffDrive">
-        <left_joint>left_wheel_joint</left_joint>
-        <right_joint>right_wheel_joint</right_joint>
+        <left_joint>right_wheel_joint</left_joint>
+        <right_joint>left_wheel_joint</right_joint>
         <wheel_separation>0.54</wheel_separation>
         <wheel_radius>0.10</wheel_radius>
         <odom_publish_frequency>50</odom_publish_frequency>

@@ -51,21 +51,24 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 
 
-# ── Waypoints ────────────────────────────────────────────────────────────────
+# ── Waypoints (odom frame) ───────────────────────────────────────────────────
+# gz-sim DiffDrive initialises odom at (0, 0, 0°) regardless of spawn pose.
+# Robot spawns at world (0, 0.750) so odom_y = world_y − 0.750.
+# World R1=(0.700,0.750), R2=(0.700,2.950), G=(0.000,2.950) → subtract 0.750:
 WAYPOINTS = [
-    (0.700,  0.750),   # R1 — east corridor
-    (0.700,  2.950),   # R2 — north of chair
-    (0.000,  2.950),   # G  — near John
+    (0.700,  0.000),   # R1 — east corridor   (world 0.700, 0.750)
+    (0.700,  2.200),   # R2 — north of chair  (world 0.700, 2.950)
+    (0.000,  2.200),   # G  — near John       (world 0.000, 2.950)
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
 
-# ── Room wall inner-face coordinates (metres) ────────────────────────────────
-# South wall centre y=-0.06, thickness 0.12 → inner face y=0.000
-# North wall centre y= 3.718, thickness 0.12 → inner face y=3.658
-# West wall centre x=-1.584, thickness 0.12 → inner face x=-1.524
-# East wall centre x= 1.584, thickness 0.12 → inner face x= 1.524
-WALL_S =  0.000
-WALL_N =  3.658
+# ── Room wall inner-face coordinates (odom frame) ────────────────────────────
+# Odom origin is at world (0, 0.750), so y-walls shift by −0.750.
+# South: world 0.000 − 0.750 = −0.750
+# North: world 3.658 − 0.750 =  2.908
+# East/West walls have no x-offset (spawn x=0).
+WALL_S = -0.750
+WALL_N =  2.908
 WALL_W = -1.524
 WALL_E =  1.524
 
@@ -90,7 +93,7 @@ class W102GazeboNav(Node):
     # ── Cost weights (tune here to change controller personality) ─────────────
     W_HEADING  = 2.0  # heading alignment — strongly penalise facing away from goal
     W_PROGRESS = 3.0  # progress — strongly reward getting closer to goal
-    W_SMOOTH   = 0.5  # smoothness — lightly penalise jerky changes in command
+    W_SMOOTH   = 0.05  # smoothness — minimal penalty; progress and heading dominate
     W_WALL     = 5.0  # wall avoidance — heavily penalise entering danger zone
 
     # ── Forward simulation horizon ────────────────────────────────────────────
@@ -267,10 +270,14 @@ class W102GazeboNav(Node):
         smooth   : change in v and ω normalised by their max values     [0, ∞)
         wall     : quadratic ramp inside WALL_DANGER of any wall face   [0, 1]
         """
-        # Linear speed grid: 0 (allow pure rotation) to MAX_LIN
+        # Linear speed grid: MIN_LIN to MAX_LIN (exclude v=0).
+        # v=0 would win trivially when prev_v=0 (zero smoothness cost, cheapest
+        # for the smoother term) even though it makes no progress — the robot
+        # deadlocks at rest.  Keeping a minimum positive speed forces the sampler
+        # to always evaluate actual forward motion candidates.
         lin_samples = [
             i * self.MAX_LIN / self.N_LIN
-            for i in range(self.N_LIN + 1)
+            for i in range(1, self.N_LIN + 1)
         ]
         # Angular speed grid: symmetric around 0
         ang_samples = [
