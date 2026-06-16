@@ -58,7 +58,7 @@ from std_msgs.msg import String
 WAYPOINTS = [
     (0.700,  0.000),   # R1 — east corridor   (world 0.700, 0.750)
     (0.700,  2.200),   # R2 — north of chair  (world 0.700, 2.950)
-    (0.000,  2.200),   # G  — near John       (world 0.000, 2.950)
+    (0.000,  2.298),   # G  — John            (world 0.000, 3.048) robot passes under torso
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
 
@@ -101,7 +101,7 @@ class W102GazeboNav(Node):
     SIM_DT    = 0.05  # seconds per step (matches timer period → 0.5 s lookahead)
 
     # ── Arrival tolerance ─────────────────────────────────────────────────────
-    ARRIVE_DIST = 0.25   # m — declare waypoint reached when closer than this
+    ARRIVE_DIST = 0.18   # m — declare waypoint reached when closer than this
 
     # ── Stuck detection ───────────────────────────────────────────────────────
     STUCK_DIST    = 0.05   # m   — minimum progress to reset the stuck clock
